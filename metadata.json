@@ -1,0 +1,5 @@
+{
+  "name": "Jira Time Tracker & AI Reporter",
+  "description": "A streamlined application to log time spent on Jira tickets, visualize work distribution, and generate professional status reports using Google Gemini AI.",
+  "requestFramePermissions": []
+}
