@@ -18,22 +18,50 @@ const TIMER_KEY = 'jira-time-tracker-active-timer';
 // }
 // ============================================================================
 
-export const saveEntries = async (entries: TimeEntry[]): Promise<void> => {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-  } catch (error) {
-    console.error('Failed to save entries', error);
-  }
-};
+const API_URL = '/api/entries';
 
 export const loadEntries = async (): Promise<TimeEntry[]> => {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
+    const response = await fetch(API_URL);
+    if (!response.ok) throw new Error('Failed to fetch entries');
+    return await response.json();
   } catch (error) {
-    console.error('Failed to load entries', error);
+    console.error('Failed to load entries from API', error);
     return [];
   }
+};
+
+export const addEntry = async (entry: TimeEntry): Promise<TimeEntry | null> => {
+  try {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(entry),
+    });
+    if (!response.ok) throw new Error('Failed to save entry');
+    return await response.json();
+  } catch (error) {
+    console.error('Failed to add entry', error);
+    return null;
+  }
+};
+
+export const deleteEntry = async (id: string): Promise<boolean> => {
+  try {
+    const response = await fetch(`${API_URL}/${id}`, {
+      method: 'DELETE',
+    });
+    return response.ok;
+  } catch (error) {
+    console.error('Failed to delete entry', error);
+    return false;
+  }
+};
+
+export const saveEntries = async (entries: TimeEntry[]): Promise<void> => {
+  // Deprecated: bulk save is not efficient for DB. 
+  // Kept empty to prevent errors if still called, but logic should move to addEntry/deleteEntry.
+  console.warn('saveEntries (bulk) is deprecated. Use addEntry/deleteEntry instead.');
 };
 
 export const saveActiveTimer = (timer: ActiveTimer): void => {
